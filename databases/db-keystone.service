@@ -1,0 +1,13 @@
+[Unit]
+Description=db-keystone
+After=docker.service
+Requires=docker.service
+Before=keystone.service
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/usr/bin/docker run --name %p -p 3306:3306 francois/db-keystone
+ExecStartPost=/usr/bin/etcdctl set /mysql/%p ${COREOS_PRIVATE_IPV4}
+ExecStop=/usr/bin/docker kill %p
+ExecStop=/usr/bin/etcdctl rm /mysql/%p
+ExecStopPost=/usr/bin/docker rm %p
